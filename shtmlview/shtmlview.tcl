@@ -1029,6 +1029,7 @@ namespace eval shtmlview {
                 after 500
                 $win configure -background $ocol
                 $status configure -text "Error: [file tail [regsub {#.*} $url {}]] does not exists!"
+				puts stderr "Error: [file tail [regsub {#.*} $url {}]] does not exists!"
                 return
             }
             lappend files $url
@@ -3447,7 +3448,7 @@ if {[info exists argv0] && [info script] eq $argv0} {
                 # guess we have mkdoc format
                 if { [ catch {  package require mkdoc::mkdoc } ] } {
                     # error handling
-                    puts "Error:\nFor extracting mkdoc documentation from Tcl source code files\npackage mkdoc::mkdoc must be present!"
+                    puts stderr "Error:\nFor extracting mkdoc documentation from Tcl source code files\npackage mkdoc::mkdoc must be present!"
                 } else {
                     set tmpfile [file tempfile]
                     mkdoc::mkdoc [lindex $argv 0] ${tmpfile}.html -html
@@ -3462,9 +3463,12 @@ if {[info exists argv0] && [info script] eq $argv0} {
                 [$help getTextWidget] tag configure divblue -foreground blue
                 update idletasks
             }
-        } else {
-            puts "Error: file [lindex $argv 0] does not exists\n or unknown option [lindex $argv 0]"
+        } elseif {[string first "-" [lindex $argv 0]] == 0} {
+            puts stderr "Error: unknown option [lindex $argv 0]\n"
             usage
+        } else {
+            puts stderr "Error: file [lindex $argv 0] does not exists"
+			exit
         }
     } else {
         usage
